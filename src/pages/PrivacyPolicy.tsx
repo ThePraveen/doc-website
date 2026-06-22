@@ -8,9 +8,9 @@ export default function PrivacyPolicy() {
     <PageTransition>
       <SEO title="Privacy Policy" description="DOC Privacy Policy — GDPR-compliant, SOC2 Type II, ISO certified. How we collect, use, and protect your data." path="/privacy-policy" />
 
-      <article className="max-w-3xl mx-auto px-5 lg:px-8 pt-20 pb-16">
-        <h1 className="text-4xl lg:text-5xl font-bold tracking-tight">Privacy Policy</h1>
-        <p className="mt-4 text-sm text-ink/60">Last updated: June 2026</p>
+      <article className="max-w-3xl mx-auto px-6 pt-20 pb-16">
+        <h1 className="text-[clamp(36px,5vw,56px)] font-bold tracking-[-0.035em] leading-[1.05]"><span className="grad">Privacy</span> <span className="grad-color">Policy</span></h1>
+        <p className="mt-4 text-sm text-muted">Last updated: June 2026</p>
 
         <LegalSection title="1. Introduction">
           <p>DOC (Data Operations Company) ("we", "us", "our") respects your privacy. This Privacy Policy explains how we collect, use, store, and protect personal information when you use our website, our DOC App, or our data operations services. By engaging with DOC, you agree to the practices described here.</p>

@@ -1,47 +1,70 @@
 import { Link } from 'react-router-dom'
 import { COMPANY } from '../constants'
 
-const links = [
-  { to: '/', label: 'Home' },
-  { to: '/how-it-works', label: 'How It Works' },
-  { to: '/about', label: 'About' },
-  { to: '/careers', label: 'Careers' },
-  { to: '/register-gig-worker', label: 'Register as Gig Worker' },
-  { to: '/privacy-policy', label: 'Privacy Policy' },
-  { to: '/terms', label: 'Terms' },
+const sections = [
+  {
+    title: 'Product',
+    links: [
+      { to: '/how-it-works', label: 'Data Generation' },
+      { to: '/how-it-works', label: 'Data Annotation' },
+      { to: '/how-it-works', label: 'Quality Check' },
+    ],
+  },
+  {
+    title: 'Company',
+    links: [
+      { to: '/about', label: 'About' },
+      { to: '/careers', label: 'Careers' },
+      { to: '/register-gig-worker', label: 'Register as Worker' },
+    ],
+  },
+  {
+    title: 'Legal',
+    links: [
+      { to: '/privacy-policy', label: 'Privacy Policy' },
+      { to: '/terms', label: 'Terms' },
+    ],
+  },
 ]
 
 export default function Footer() {
   return (
-    <footer className="mt-24 border-t border-sand bg-sand/30">
-      <div className="max-w-7xl mx-auto px-5 lg:px-8 py-12">
-        <div className="grid gap-8 md:grid-cols-3 items-start">
+    <footer className="mt-20 pt-16 pb-10 border-t border-line">
+      <div className="max-w-[1240px] mx-auto px-7">
+        <div className="grid gap-10 md:grid-cols-[1.4fr_repeat(3,1fr)] pb-10">
           <div>
-            <div className="font-bold text-lg text-ink">{COMPANY.longName}</div>
-            <p className="mt-2 text-sm text-ink/70 max-w-xs">{COMPANY.tagline}</p>
+            <div className="font-bold tracking-tight text-lg">{COMPANY.longName}</div>
+            <p className="mt-3 text-[14.5px] text-muted max-w-xs">{COMPANY.tagline}</p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <span className="chip">🔒 GDPR</span>
+              <span className="chip">SOC2 II</span>
+              <span className="chip">ISO</span>
+            </div>
           </div>
-          <nav className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
-            {links.map((l) => (
-              <Link key={l.to} to={l.to} className="text-ink/70 hover:text-primary transition-colors">
-                {l.label}
-              </Link>
-            ))}
-          </nav>
-          <div className="text-sm space-y-1">
-            <a href={`mailto:${COMPANY.email}`} className="block text-ink/80 hover:text-primary">{COMPANY.email}</a>
-            <a href={`tel:${COMPANY.phone.replace(/\s/g, '')}`} className="block text-ink/80 hover:text-primary">{COMPANY.phone}</a>
-          </div>
+          {sections.map((s) => (
+            <div key={s.title}>
+              <h4 className="text-[12px] font-semibold tracking-[0.08em] uppercase text-muted mb-4">{s.title}</h4>
+              <ul className="space-y-2.5">
+                {s.links.map((l) => (
+                  <li key={l.label}>
+                    <Link to={l.to} className="text-[14.5px] text-ink-2 hover:text-orb-purple transition-colors">
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+                {s.title === 'Legal' && (
+                  <>
+                    <li><a className="text-[14.5px] text-ink-2 hover:text-orb-purple" href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a></li>
+                    <li><a className="text-[14.5px] text-ink-2 hover:text-orb-purple" href={`tel:${COMPANY.phone.replace(/\s/g, '')}`}>{COMPANY.phone}</a></li>
+                  </>
+                )}
+              </ul>
+            </div>
+          ))}
         </div>
-        <div className="mt-10 pt-6 border-t border-sand flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-          <div className="flex flex-wrap items-center gap-2 text-xs text-ink/70">
-            <span aria-hidden>🔒</span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-bg border border-sand px-3 py-1 font-medium">GDPR Compliant</span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-bg border border-sand px-3 py-1 font-medium">SOC2 Type II</span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-bg border border-sand px-3 py-1 font-medium">ISO Certified</span>
-          </div>
-          <div className="text-xs text-ink/60">
-            © 2026 DOC Data Operations Company. All rights reserved.
-          </div>
+        <div className="pt-6 border-t border-line flex flex-wrap items-center justify-between gap-3 text-[13.5px] text-muted">
+          <span>© 2026 DOC Data Operations Company. All rights reserved.</span>
+          <span>Built with care · Premium training data for AI</span>
         </div>
       </div>
     </footer>

@@ -54,14 +54,16 @@ export default function HowItWorks() {
         path="/how-it-works"
       />
 
-      <section className="max-w-7xl mx-auto px-5 lg:px-8 pt-20 pb-12 text-center">
-        <h1 className="text-4xl lg:text-5xl font-bold tracking-tight">How It Works</h1>
-        <p className="mt-5 text-lg text-ink/75 max-w-2xl mx-auto">
+      <section className="max-w-[1240px] mx-auto px-6 pt-20 pb-10 text-center">
+        <h1 className="text-[clamp(40px,6vw,72px)] font-bold tracking-[-0.035em] leading-[1.05]">
+          <span className="grad">How it</span> <span className="grad-color">works</span>
+        </h1>
+        <p className="mt-5 text-[18px] text-muted max-w-2xl mx-auto">
           Three engines. One promise: human-grade data, at machine throughput.
         </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-2 text-sm">
+        <div className="mt-8 flex flex-wrap justify-center gap-2">
           {sections.map((s) => (
-            <a key={s.id} href={`#${s.id}`} className="rounded-full border border-sand bg-bg px-4 py-1.5 hover:border-primary hover:text-primary transition-colors">
+            <a key={s.id} href={`#${s.id}`} className="chip hover:bg-white/85 transition-colors">
               {s.title}
             </a>
           ))}
@@ -69,22 +71,20 @@ export default function HowItWorks() {
       </section>
 
       {sections.map((section, sIdx) => (
-        <section
-          key={section.id}
-          id={section.id}
-          className={`scroll-mt-24 ${sIdx % 2 === 1 ? 'bg-sand/30 border-y border-sand' : ''}`}
-        >
-          <div className="max-w-5xl mx-auto px-5 lg:px-8 py-20">
-            <div className="mb-12">
-              <div className="text-sm font-semibold text-secondary uppercase tracking-wider">
+        <section key={section.id} id={section.id} className="scroll-mt-24 px-6 py-16">
+          <div className="max-w-[1080px] mx-auto glass p-8 md:p-12">
+            <div className="mb-10">
+              <div className="text-[12px] font-semibold tracking-[0.08em] uppercase text-muted">
                 Engine {sIdx + 1}
               </div>
-              <h2 className="mt-2 text-3xl lg:text-4xl font-bold tracking-tight">{section.title}</h2>
-              <p className="mt-3 text-ink/75 max-w-2xl">{section.lead}</p>
+              <h2 className="mt-2 text-[clamp(28px,3.8vw,44px)] font-bold tracking-[-0.03em] leading-[1.08]">
+                <span className="grad">{section.title}</span>
+              </h2>
+              <p className="mt-3 text-[17px] text-muted max-w-2xl">{section.lead}</p>
             </div>
 
             <ol className="relative">
-              <span className="absolute left-5 top-2 bottom-2 w-px bg-sand" aria-hidden />
+              <span className="absolute left-5 top-2 bottom-2 w-px bg-black/10" aria-hidden />
               {section.steps.map((step, i) => (
                 <motion.li
                   key={step.title}
@@ -92,13 +92,19 @@ export default function HowItWorks() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: '-60px' }}
                   transition={{ duration: 0.4, delay: i * 0.05 }}
-                  className="relative pl-16 pb-10 last:pb-0"
+                  className="relative pl-16 pb-9 last:pb-0"
                 >
-                  <span className="absolute left-0 top-0 w-10 h-10 rounded-full bg-primary text-bg flex items-center justify-center font-bold text-sm shadow">
+                  <span
+                    className="absolute left-0 top-0 w-10 h-10 rounded-full grid place-items-center text-white font-bold text-sm"
+                    style={{
+                      background: 'linear-gradient(135deg, #0A0A0C, #2A2A2D)',
+                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.25), 0 6px 14px -4px rgba(0,0,0,0.3)',
+                    }}
+                  >
                     {i + 1}
                   </span>
-                  <h3 className="font-bold text-lg">Step {i + 1} — {step.title}</h3>
-                  <p className="mt-2 text-ink/75 leading-relaxed">{step.body}</p>
+                  <h3 className="font-semibold text-[17px] text-ink">Step {i + 1} — {step.title}</h3>
+                  <p className="mt-1.5 text-[15.5px] text-muted leading-relaxed">{step.body}</p>
                 </motion.li>
               ))}
             </ol>
@@ -106,14 +112,11 @@ export default function HowItWorks() {
         </section>
       ))}
 
-      <section className="max-w-7xl mx-auto px-5 lg:px-8 py-20 text-center">
-        <h2 className="text-3xl font-bold">Ready to plug DOC into your pipeline?</h2>
-        <a
-          href={GOOGLE_FORM_LINK}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary hover:bg-secondary px-7 py-3.5 text-base font-semibold text-bg shadow-lg"
-        >
+      <section className="max-w-[1240px] mx-auto px-6 py-16 text-center">
+        <h2 className="text-[clamp(28px,3.8vw,44px)] font-bold tracking-[-0.03em] leading-tight">
+          <span className="grad">Ready to plug DOC</span> <span className="grad-color">into your pipeline?</span>
+        </h2>
+        <a href={GOOGLE_FORM_LINK} target="_blank" rel="noopener noreferrer" className="btn-dark mt-8">
           Talk to Us
         </a>
       </section>
