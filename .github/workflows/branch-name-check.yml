@@ -1,0 +1,53 @@
+name: Branch Name & PR Check
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, edited, synchronize]
+
+jobs:
+  validate-branch-name:
+    name: Validate branch name targeting main
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch name follows convention
+        env:
+          HEAD_BRANCH: ${{ github.head_ref }}
+        run: |
+          echo "PR head branch: $HEAD_BRANCH"
+
+          # Block PRs from main → main (shouldn't happen, but guard anyway)
+          if [ "$HEAD_BRANCH" = "main" ]; then
+            echo "::error::PRs from 'main' into 'main' are not allowed."
+            exit 1
+          fi
+
+          # Allowed pattern: <type>/<kebab-case-description>
+          # Types: feature, fix, hotfix, chore, docs, refactor, test, ci
+          PATTERN='^(feature|fix|hotfix|chore|docs|refactor|test|ci)\/[a-z0-9]+(-[a-z0-9]+)*$'
+
+          if ! echo "$HEAD_BRANCH" | grep -Eq "$PATTERN"; then
+            echo "::error::Branch name '$HEAD_BRANCH' does not follow the naming convention."
+            echo ""
+            echo "Required format: <type>/<short-kebab-description>"
+            echo "Allowed types:   feature | fix | hotfix | chore | docs | refactor | test | ci"
+            echo ""
+            echo "Examples:"
+            echo "  feature/careers-filter"
+            echo "  fix/mobile-menu-overflow"
+            echo "  docs/update-readme"
+            echo "  chore/bump-vite"
+            exit 1
+          fi
+
+          echo "✓ Branch name '$HEAD_BRANCH' is valid."
+
+  block-direct-push-to-main:
+    name: Block direct commits to main
+    if: github.event.pull_request.head.ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail
+        run: |
+          echo "::error::Direct merges from 'main' into 'main' are blocked. Use a feature branch."
+          exit 1
