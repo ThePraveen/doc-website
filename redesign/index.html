@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080C1A" />
+  <title>DOC — Data Operations Company · The Human Layer Your AI Pipeline Needs</title>
+  <meta name="description" content="DOC deploys AI-powered technical gig workers to generate, annotate, and quality-check your training data — at the speed your pipeline demands." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://images.unsplash.com" />
+
+  <style>
+    /* ---------- Reset & Base ---------- */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: #E8ECF5;
+      background: #080C1A;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      line-height: 1.55;
+    }
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: 0; }
+
+    :root {
+      --bg: #080C1A;
+      --ink: #E8ECF5;
+      --muted: rgba(232, 236, 245, 0.65);
+      --glass-bg: rgba(255, 255, 255, 0.06);
+      --glass-bg-strong: rgba(255, 255, 255, 0.10);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --glass-border-strong: rgba(255, 255, 255, 0.22);
+      --accent-1: #7C5CFF;
+      --accent-2: #00D4FF;
+      --accent-3: #FF6BD6;
+      --accent-warm: #FFB35C;
+    }
+
+    /* ---------- Background Orbs ---------- */
+    .orb-stage {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      overflow: hidden; filter: blur(70px); opacity: 0.85;
+    }
+    .orb {
+      position: absolute; border-radius: 50%; mix-blend-mode: screen;
+      will-change: transform;
+    }
+    .orb.o1 { width: 520px; height: 520px; background: radial-gradient(circle, #7C5CFF 0%, transparent 65%); top: -120px; left: -100px; animation: float1 22s ease-in-out infinite; }
+    .orb.o2 { width: 620px; height: 620px; background: radial-gradient(circle, #00D4FF 0%, transparent 65%); top: 30%; right: -180px; animation: float2 26s ease-in-out infinite; }
+    .orb.o3 { width: 480px; height: 480px; background: radial-gradient(circle, #FF6BD6 0%, transparent 65%); bottom: -120px; left: 20%; animation: float3 28s ease-in-out infinite; }
+    .orb.o4 { width: 420px; height: 420px; background: radial-gradient(circle, #FFB35C 0%, transparent 70%); top: 60%; left: 55%; animation: float4 30s ease-in-out infinite; }
+
+    @keyframes float1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(140px, 80px) scale(1.12); } }
+    @keyframes float2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-160px, 100px) scale(1.18); } }
+    @keyframes float3 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(120px, -80px) scale(1.1); } }
+    @keyframes float4 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-80px, -120px) scale(1.15); } }
+
+    /* Noise overlay for premium grain */
+    body::before {
+      content: ""; position: fixed; inset: 0; z-index: 1; pointer-events: none;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+      opacity: 0.05; mix-blend-mode: overlay;
+    }
+
+    /* ---------- Glass Primitive ---------- */
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.08) inset,
+        0 30px 60px -20px rgba(0,0,0,0.45);
+    }
+
+    /* ---------- Layout ---------- */
+    main { position: relative; z-index: 2; }
+    .container { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+
+    /* ---------- Navbar ---------- */
+    .nav-wrap {
+      position: sticky; top: 16px; z-index: 30;
+      padding: 0 16px; margin-top: 16px;
+    }
+    .nav {
+      max-width: 1240px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; border-radius: 999px;
+      background: rgba(12, 18, 36, 0.55);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset, 0 20px 60px -20px rgba(0,0,0,0.6);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: 0.4px; }
+    .brand-mark {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      display: grid; place-items: center; font-weight: 800; color: #0B0E1F;
+      box-shadow: 0 8px 22px -6px rgba(124, 92, 255, 0.6);
+    }
+    .nav-links { display: flex; gap: 26px; }
+    .nav-links a {
+      font-size: 14px; font-weight: 500; color: var(--muted); transition: color .25s;
+      position: relative; padding: 4px 0;
+    }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-links a::after {
+      content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 1px;
+      background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+      transform: scaleX(0); transform-origin: left; transition: transform .3s;
+    }
+    .nav-links a:hover::after { transform: scaleX(1); }
+    .nav-cta {
+      padding: 10px 18px; border-radius: 999px; font-weight: 600; font-size: 14px;
+      color: #0B0E1F;
+      background: linear-gradient(135deg, #ffffff, #cdd5e6);
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.4) inset, 0 8px 24px -6px rgba(255,255,255,0.25);
+    }
+    .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 0 0 1px rgba(255,255,255,0.6) inset, 0 14px 30px -8px rgba(255,255,255,0.35); }
+    .nav-toggle { display: none; }
+
+    /* ---------- Hero / Carousel ---------- */
+    .hero {
+      position: relative; min-height: 92vh;
+      display: grid; place-items: center;
+      padding: 80px 24px 100px;
+    }
+    .carousel {
+      position: absolute; inset: 0; z-index: 0; overflow: hidden;
+    }
+    .carousel-slide {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      opacity: 0; transition: opacity 1.4s ease;
+    }
+    .carousel-slide.active { opacity: 1; }
+    .carousel::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse at center, rgba(8,12,26,0.35) 0%, rgba(8,12,26,0.85) 75%),
+        linear-gradient(180deg, rgba(8,12,26,0.6) 0%, rgba(8,12,26,0.95) 100%);
+    }
+    .hero-inner {
+      position: relative; z-index: 2; text-align: center; max-width: 940px;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 8px 16px; border-radius: 999px;
+      font-size: 13px; font-weight: 500; color: var(--ink);
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--glass-border);
+    }
+    .hero-eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: #5BFFB0; box-shadow: 0 0 12px #5BFFB0; }
+    h1, h2, h3 { letter-spacing: -0.02em; line-height: 1.08; margin: 0; }
+    .hero h1 {
+      font-size: clamp(40px, 6.5vw, 80px); font-weight: 700;
+      margin: 22px 0 18px;
+    }
+    .grad-text {
+      background: linear-gradient(120deg, #ffffff 0%, #cdd5ff 35%, #00D4FF 70%, #FF6BD6 100%);
+      -webkit-background-clip: text; background-clip: text;
+      color: transparent;
+    }
+    .hero p.lead {
+      font-size: clamp(16px, 1.4vw, 19px);
+      color: var(--muted); max-width: 720px; margin: 0 auto;
+    }
+    .hero-actions { display: flex; gap: 14px; justify-content: center; margin-top: 36px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 14px 24px; border-radius: 999px; font-weight: 600; font-size: 15px;
+      transition: transform .2s, box-shadow .25s, background .2s;
+    }
+    .btn-primary {
+      color: #0B0E1F;
+      background: linear-gradient(135deg, #ffffff, #cdd5e6);
+      box-shadow: 0 14px 40px -10px rgba(255,255,255,0.35), 0 0 0 1px rgba(255,255,255,0.4) inset;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 22px 50px -10px rgba(255,255,255,0.5), 0 0 0 1px rgba(255,255,255,0.6) inset; }
+    .btn-ghost {
+      color: var(--ink);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.12); transform: translateY(-2px); }
+    .btn-glow {
+      color: #0B0E1F;
+      background: linear-gradient(135deg, var(--accent-2), var(--accent-1));
+      box-shadow: 0 14px 40px -10px rgba(124, 92, 255, 0.55);
+      animation: glowPulse 3s ease-in-out infinite;
+    }
+    @keyframes glowPulse {
+      0%,100% { box-shadow: 0 14px 40px -10px rgba(124, 92, 255, 0.55); }
+      50%     { box-shadow: 0 18px 60px -10px rgba(0, 212, 255, 0.7); }
+    }
+    .btn-glow:hover { transform: translateY(-2px); }
+
+    /* Carousel dots */
+    .dots {
+      position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 10px; z-index: 3;
+    }
+    .dot-btn {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,0.35); transition: all .3s;
+    }
+    .dot-btn.active { background: #fff; width: 28px; border-radius: 999px; }
+
+    /* ---------- Sections ---------- */
+    section { padding: 100px 0; position: relative; }
+    .section-head { text-align: center; max-width: 720px; margin: 0 auto 60px; }
+    .section-head .eyebrow {
+      font-size: 12px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent-2);
+    }
+    .section-head h2 {
+      font-size: clamp(32px, 4.5vw, 54px); font-weight: 700; margin: 14px 0 12px;
+    }
+    .section-head p { color: var(--muted); font-size: 17px; }
+
+    /* ---------- Stats ---------- */
+    .stats {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+      padding: 28px 40px;
+    }
+    .stat { text-align: center; padding: 12px 8px; position: relative; }
+    .stat + .stat::before {
+      content: ""; position: absolute; left: 0; top: 20%; bottom: 20%; width: 1px;
+      background: linear-gradient(180deg, transparent, rgba(255,255,255,0.18), transparent);
+    }
+    .stat-value {
+      font-size: clamp(28px, 3.4vw, 42px); font-weight: 700;
+      background: linear-gradient(120deg, #fff, #9aa5c4);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      letter-spacing: -0.02em;
+    }
+    .stat-label { font-size: 13px; color: var(--muted); margin-top: 6px; letter-spacing: 0.04em; }
+
+    /* ---------- What We Do (cards with images) ---------- */
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .card {
+      position: relative; padding: 24px; border-radius: 22px;
+      display: flex; flex-direction: column; gap: 16px;
+      transition: transform .35s ease, box-shadow .35s ease, border-color .35s;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+      border-color: var(--glass-border-strong);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.10) inset, 0 40px 80px -20px rgba(0,0,0,0.65);
+    }
+    .card-image {
+      width: 100%; aspect-ratio: 16/10; border-radius: 14px; overflow: hidden;
+      position: relative; background: #0E1426;
+    }
+    .card-image img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform .8s ease;
+    }
+    .card:hover .card-image img { transform: scale(1.06); }
+    .card-image::after {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(180deg, transparent 50%, rgba(8,12,26,0.55) 100%);
+    }
+    .card-icon {
+      position: absolute; top: 14px; left: 14px;
+      width: 44px; height: 44px; border-radius: 12px;
+      display: grid; place-items: center;
+      background: rgba(8,12,26,0.55); backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      color: var(--accent-2); z-index: 2;
+    }
+    .card h3 { font-size: 22px; font-weight: 600; }
+    .card ul { list-style: none; margin: 0; padding: 0; }
+    .card ul li {
+      position: relative; padding-left: 22px; color: var(--muted);
+      font-size: 14.5px; margin-bottom: 8px;
+    }
+    .card ul li::before {
+      content: ""; position: absolute; left: 0; top: 9px;
+      width: 10px; height: 2px; border-radius: 2px;
+      background: linear-gradient(90deg, var(--accent-2), var(--accent-1));
+    }
+
+    /* ---------- Why DOC (2 column 4 cards) ---------- */
+    .grid-why { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .why-card { padding: 28px; display: flex; gap: 20px; align-items: flex-start; }
+    .why-card .icon-tile {
+      flex-shrink: 0; width: 54px; height: 54px; border-radius: 14px;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, rgba(124,92,255,0.22), rgba(0,212,255,0.22));
+      border: 1px solid var(--glass-border);
+      color: #fff;
+    }
+    .why-card h3 { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+    .why-card p { color: var(--muted); margin: 0; font-size: 15px; }
+
+    /* ---------- Certifications ---------- */
+    .certs { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+    .cert {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 12px 18px; border-radius: 999px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      font-size: 14px; font-weight: 500;
+    }
+    .cert i, .cert svg { color: var(--accent-2); }
+
+    /* ---------- CTA ---------- */
+    .cta-shell { padding: 56px 40px; text-align: center; border-radius: 28px; overflow: hidden; position: relative; }
+    .cta-shell::before {
+      content: ""; position: absolute; inset: -1px; border-radius: 28px; padding: 1px;
+      background: linear-gradient(120deg, rgba(124,92,255,0.6), rgba(0,212,255,0.6), rgba(255,107,214,0.6));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor; mask-composite: exclude;
+      pointer-events: none;
+    }
+    .cta-shell h2 { font-size: clamp(28px, 3.6vw, 42px); margin-bottom: 12px; }
+    .cta-shell p { color: var(--muted); margin: 0 auto 30px; max-width: 580px; }
+    .cta-form {
+      display: flex; gap: 10px; max-width: 540px; margin: 0 auto;
+      padding: 6px; border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+    }
+    .cta-form input {
+      flex: 1; background: transparent; border: 0; outline: 0;
+      color: #fff; font-size: 15px; padding: 12px 18px;
+      font-family: inherit;
+    }
+    .cta-form input::placeholder { color: rgba(232,236,245,0.5); }
+    .cta-form button {
+      padding: 12px 22px; border-radius: 999px; font-weight: 600; color: #0B0E1F;
+      background: linear-gradient(135deg, #fff, #cdd5e6);
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .cta-form button:hover { transform: translateY(-1px); box-shadow: 0 0 0 1px rgba(255,255,255,0.6) inset, 0 14px 30px -8px rgba(255,255,255,0.4); }
+    .cta-success { color: #5BFFB0; margin-top: 14px; font-size: 14px; min-height: 18px; }
+
+    /* ---------- Footer ---------- */
+    footer { padding: 60px 0 40px; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 60px; }
+    .foot-grid {
+      display: grid; grid-template-columns: 1.4fr repeat(3, 1fr); gap: 40px;
+      padding-bottom: 36px;
+    }
+    .foot-grid h4 { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); margin: 0 0 16px; }
+    .foot-grid ul { list-style: none; margin: 0; padding: 0; }
+    .foot-grid li { margin-bottom: 10px; }
+    .foot-grid a { color: var(--muted); font-size: 14.5px; transition: color .2s; }
+    .foot-grid a:hover { color: var(--ink); }
+    .foot-tagline { color: var(--muted); font-size: 14.5px; max-width: 320px; margin: 12px 0 18px; }
+    .foot-bottom {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 22px; border-top: 1px solid rgba(255,255,255,0.06);
+      color: var(--muted); font-size: 13px; flex-wrap: wrap; gap: 12px;
+    }
+
+    /* ---------- Scroll Reveal ---------- */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .8s ease, transform .8s ease; }
+    .reveal.in { opacity: 1; transform: none; }
+    .reveal[data-delay="1"] { transition-delay: .08s; }
+    .reveal[data-delay="2"] { transition-delay: .16s; }
+    .reveal[data-delay="3"] { transition-delay: .24s; }
+    .reveal[data-delay="4"] { transition-delay: .32s; }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .nav-toggle { display: inline-flex; width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.08); align-items: center; justify-content: center; color: #fff; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .stat + .stat::before { display: none; }
+      .grid-3 { grid-template-columns: 1fr; }
+      .grid-why { grid-template-columns: 1fr; }
+      .foot-grid { grid-template-columns: 1fr 1fr; }
+      .nav-wrap { top: 8px; margin-top: 8px; }
+      section { padding: 70px 0; }
+    }
+    @media (max-width: 540px) {
+      .foot-grid { grid-template-columns: 1fr; }
+      .cta-form { flex-direction: column; border-radius: 22px; padding: 10px; }
+      .cta-form input { text-align: center; }
+      .cta-form button { width: 100%; justify-content: center; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background orbs -->
+  <div class="orb-stage" aria-hidden="true">
+    <div class="orb o1"></div>
+    <div class="orb o2"></div>
+    <div class="orb o3"></div>
+    <div class="orb o4"></div>
+  </div>
+
+  <!-- Navbar -->
+  <div class="nav-wrap">
+    <nav class="nav" aria-label="Primary">
+      <a href="#" class="brand" aria-label="DOC home">
+        <span class="brand-mark">D</span>
+        <span>DOC</span>
+      </a>
+      <div class="nav-links">
+        <a href="#what">What We Do</a>
+        <a href="#why">Why DOC</a>
+        <a href="#stats">Impact</a>
+        <a href="#cta">Contact</a>
+      </div>
+      <a href="#cta" class="nav-cta">
+        Talk to Us <i data-lucide="arrow-right" width="16" height="16"></i>
+      </a>
+      <button class="nav-toggle" aria-label="Menu"><i data-lucide="menu"></i></button>
+    </nav>
+  </div>
+
+  <main>
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+      <div class="carousel" aria-hidden="true">
+        <div class="carousel-slide active" style="background-image:url('https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=2400&q=80');"></div>
+        <div class="carousel-slide"        style="background-image:url('https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=2400&q=80');"></div>
+        <div class="carousel-slide"        style="background-image:url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=2400&q=80');"></div>
+        <div class="carousel-slide"        style="background-image:url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=2400&q=80');"></div>
+        <div class="carousel-slide"        style="background-image:url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=2400&q=80');"></div>
+      </div>
+
+      <div class="hero-inner">
+        <span class="hero-eyebrow reveal">
+          <span class="dot"></span> AI-Powered Technical Gig Workers, At Scale
+        </span>
+        <h1 class="reveal" data-delay="1">
+          The <span class="grad-text">Human Layer</span><br/>
+          Your AI Pipeline Needs
+        </h1>
+        <p class="lead reveal" data-delay="2">
+          DOC deploys AI-powered technical gig workers to generate, annotate, and quality-check
+          your training data — at the speed your pipeline demands.
+        </p>
+        <div class="hero-actions reveal" data-delay="3">
+          <a href="#cta" class="btn btn-primary">
+            Talk to Us <i data-lucide="arrow-right" width="18" height="18"></i>
+          </a>
+          <a href="#what" class="btn btn-ghost">
+            How it Works <i data-lucide="play" width="16" height="16"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="dots" role="tablist" aria-label="Hero image carousel">
+        <button class="dot-btn active" data-i="0" aria-label="Slide 1"></button>
+        <button class="dot-btn"        data-i="1" aria-label="Slide 2"></button>
+        <button class="dot-btn"        data-i="2" aria-label="Slide 3"></button>
+        <button class="dot-btn"        data-i="3" aria-label="Slide 4"></button>
+        <button class="dot-btn"        data-i="4" aria-label="Slide 5"></button>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section id="stats" style="padding-top: 40px;">
+      <div class="container">
+        <div class="glass stats reveal">
+          <div class="stat">
+            <div class="stat-value" data-count="10000" data-suffix="K+">0</div>
+            <div class="stat-label">Trained Gig Workers</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" data-count="500" data-suffix="TB+">0</div>
+            <div class="stat-label">Data Delivered</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" data-count="99.9" data-suffix="%">0</div>
+            <div class="stat-label">Quality Pass Rate</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" data-count="50" data-suffix="+">0</div>
+            <div class="stat-label">Enterprise Clients</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHAT WE DO -->
+    <section id="what">
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="eyebrow">What We Do</div>
+          <h2>Three engines, <span class="grad-text">one pipeline</span></h2>
+          <p>Human-grade data at machine throughput — for every step of your AI lifecycle.</p>
+        </div>
+
+        <div class="grid-3">
+          <article class="card glass reveal" data-delay="1">
+            <div class="card-image">
+              <img loading="lazy" src="https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=80" alt="AI neural visualization" />
+              <span class="card-icon"><i data-lucide="database" width="20" height="20"></i></span>
+            </div>
+            <h3>Data Generation Machine</h3>
+            <ul>
+              <li>Human-generated and curated TBs of training data</li>
+              <li>Text · Audio · Image · Video · Sensor</li>
+              <li>Mobile · Meta Quest · Pico · Robotic Gloves</li>
+            </ul>
+          </article>
+
+          <article class="card glass reveal" data-delay="2">
+            <div class="card-image">
+              <img loading="lazy" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80" alt="Data annotation workstations" />
+              <span class="card-icon"><i data-lucide="scan-text" width="20" height="20"></i></span>
+            </div>
+            <h3>Data Annotation Machine</h3>
+            <ul>
+              <li>The mandatory human step in your AI pipeline</li>
+              <li>Throughput matched to every other stage</li>
+              <li>Zero-bottleneck delivery guarantee</li>
+            </ul>
+          </article>
+
+          <article class="card glass reveal" data-delay="3">
+            <div class="card-image">
+              <img loading="lazy" src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1200&q=80" alt="Robotic systems" />
+              <span class="card-icon"><i data-lucide="shield-check" width="20" height="20"></i></span>
+            </div>
+            <h3>Quality Check Machine</h3>
+            <ul>
+              <li>Stops bad data before training touches it</li>
+              <li>Saves costly retraining cycles</li>
+              <li>Human + AI verification layer</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY DOC -->
+    <section id="why">
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="eyebrow">Why DOC</div>
+          <h2>Built for the <span class="grad-text">AI scale curve</span></h2>
+          <p>Four pillars that make us the default human layer for AI pipelines.</p>
+        </div>
+
+        <div class="grid-why">
+          <div class="why-card glass reveal" data-delay="1">
+            <div class="icon-tile"><i data-lucide="users" width="24" height="24"></i></div>
+            <div>
+              <h3>Scale</h3>
+              <p>1000s of trained, vetted gig workers on-demand across India, Africa, and Mexico — ramped in days, not quarters.</p>
+            </div>
+          </div>
+          <div class="why-card glass reveal" data-delay="2">
+            <div class="icon-tile"><i data-lucide="zap" width="24" height="24"></i></div>
+            <div>
+              <h3>Speed</h3>
+              <p>Throughput matched to your pipeline SLA. Shifts engineered around your training cadence, not the other way around.</p>
+            </div>
+          </div>
+          <div class="why-card glass reveal" data-delay="3">
+            <div class="icon-tile"><i data-lucide="globe" width="24" height="24"></i></div>
+            <div>
+              <h3>Coverage</h3>
+              <p>Every modality, every device — text, audio, image, video, sensor data on phones, headsets, and robotic gloves.</p>
+            </div>
+          </div>
+          <div class="why-card glass reveal" data-delay="4">
+            <div class="icon-tile"><i data-lucide="lock" width="24" height="24"></i></div>
+            <div>
+              <h3>Trust</h3>
+              <p>Multi-layer QC built into every step. Encrypted at rest and in transit. GDPR, SOC2 Type II, ISO — by design.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CERTIFICATIONS -->
+    <section style="padding: 40px 0 80px;">
+      <div class="container">
+        <div class="certs reveal">
+          <span class="cert"><i data-lucide="shield" width="16" height="16"></i> GDPR Compliant</span>
+          <span class="cert"><i data-lucide="badge-check" width="16" height="16"></i> SOC2 Type II Certified</span>
+          <span class="cert"><i data-lucide="award" width="16" height="16"></i> ISO Certified</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section id="cta" style="padding-top: 0;">
+      <div class="container">
+        <div class="glass cta-shell reveal">
+          <h2>Ready to accelerate your <span class="grad-text">AI data pipeline</span>?</h2>
+          <p>More data, better models. Offer better models to your customers with our curated, quality data — in bulk.</p>
+          <form class="cta-form" id="ctaForm" novalidate>
+            <input type="email" name="email" placeholder="Your work email" required aria-label="Work email" />
+            <button type="submit">
+              Get in Touch <i data-lucide="send" width="16" height="16"></i>
+            </button>
+          </form>
+          <div class="cta-success" id="ctaSuccess" role="status" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="container">
+        <div class="foot-grid">
+          <div>
+            <a href="#" class="brand">
+              <span class="brand-mark">D</span>
+              <span>DOC — Data Operations Company</span>
+            </a>
+            <p class="foot-tagline">The human layer behind the world's AI. Premium training data, at machine throughput.</p>
+            <div class="certs" style="justify-content: flex-start;">
+              <span class="cert"><i data-lucide="lock" width="14" height="14"></i> GDPR</span>
+              <span class="cert"><i data-lucide="badge-check" width="14" height="14"></i> SOC2</span>
+              <span class="cert"><i data-lucide="award" width="14" height="14"></i> ISO</span>
+            </div>
+          </div>
+          <div>
+            <h4>Product</h4>
+            <ul>
+              <li><a href="#what">Data Generation</a></li>
+              <li><a href="#what">Data Annotation</a></li>
+              <li><a href="#what">Quality Check</a></li>
+              <li><a href="#why">Why DOC</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Company</h4>
+            <ul>
+              <li><a href="/about">About</a></li>
+              <li><a href="/careers">Careers</a></li>
+              <li><a href="/register-gig-worker">Register as Worker</a></li>
+              <li><a href="#cta">Contact</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Legal</h4>
+            <ul>
+              <li><a href="/privacy-policy">Privacy Policy</a></li>
+              <li><a href="/terms">Terms</a></li>
+              <li><a href="mailto:uspraveen@icloud.com">uspraveen@icloud.com</a></li>
+              <li><a href="tel:+19718181796">+1-971-818-1796</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="foot-bottom">
+          <span>© 2026 DOC Data Operations Company. All rights reserved.</span>
+          <span style="display:inline-flex; gap:14px;">
+            <a href="#" aria-label="LinkedIn"><i data-lucide="linkedin" width="18" height="18"></i></a>
+            <a href="#" aria-label="X / Twitter"><i data-lucide="twitter" width="18" height="18"></i></a>
+            <a href="mailto:uspraveen@icloud.com" aria-label="Email"><i data-lucide="mail" width="18" height="18"></i></a>
+          </span>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <!-- Lucide icons (CDN) -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script>
+    // -------- Lucide --------
+    if (window.lucide) lucide.createIcons();
+
+    // -------- Carousel --------
+    (function () {
+      const slides = document.querySelectorAll('.carousel-slide');
+      const dots = document.querySelectorAll('.dot-btn');
+      let i = 0, timer;
+
+      function go(n) {
+        slides[i].classList.remove('active');
+        dots[i].classList.remove('active');
+        i = (n + slides.length) % slides.length;
+        slides[i].classList.add('active');
+        dots[i].classList.add('active');
+      }
+      function next() { go(i + 1); }
+      function start() { timer = setInterval(next, 5000); }
+      function stop()  { clearInterval(timer); }
+
+      dots.forEach(d => d.addEventListener('click', () => {
+        go(parseInt(d.dataset.i, 10));
+        stop(); start();
+      }));
+
+      // Pause on tab hidden, resume on visible
+      document.addEventListener('visibilitychange', () => {
+        document.hidden ? stop() : start();
+      });
+
+      start();
+    })();
+
+    // -------- Reveal on scroll --------
+    (function () {
+      const els = document.querySelectorAll('.reveal');
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('in');
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+      els.forEach(el => io.observe(el));
+    })();
+
+    // -------- Animated counters --------
+    (function () {
+      const counters = document.querySelectorAll('[data-count]');
+      const animate = (el) => {
+        const target = parseFloat(el.dataset.count);
+        const suffix = el.dataset.suffix || '';
+        const isFloat = !Number.isInteger(target);
+        const duration = 1800;
+        const start = performance.now();
+        function tick(now) {
+          const p = Math.min(1, (now - start) / duration);
+          const eased = 1 - Math.pow(1 - p, 3);
+          let val = target * eased;
+          // Friendly formatting: 10000 → 10K+
+          let display;
+          if (target >= 1000) display = (val / 1000).toFixed(0) + 'K' + (suffix.replace(/[\d.]/g,'').replace('K','') || '');
+          else if (isFloat)  display = val.toFixed(1) + suffix.replace(/[\d.]/g,'');
+          else                display = Math.round(val) + suffix.replace(/[\d.]/g,'');
+          el.textContent = display;
+          if (p < 1) requestAnimationFrame(tick);
+          else {
+            if (target >= 1000) el.textContent = (target/1000).toFixed(0) + 'K+';
+            else if (isFloat)   el.textContent = target.toFixed(1) + '%';
+            else                el.textContent = target + (suffix.includes('+') ? '+' : suffix);
+          }
+        }
+        requestAnimationFrame(tick);
+      };
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) { animate(e.target); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.4 });
+      counters.forEach(c => io.observe(c));
+    })();
+
+    // -------- CTA form --------
+    (function () {
+      const form = document.getElementById('ctaForm');
+      const out  = document.getElementById('ctaSuccess');
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = form.email.value.trim();
+        const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        if (!ok) {
+          out.textContent = 'Please enter a valid email.';
+          out.style.color = '#FF8FB3';
+          return;
+        }
+        out.style.color = '#5BFFB0';
+        out.textContent = `Thanks — we'll reach out to ${email} within one business day.`;
+        form.reset();
+      });
+    })();
+  </script>
+</body>
+</html>
