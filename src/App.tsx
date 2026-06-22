@@ -5,6 +5,7 @@ import Header from './components/Header'
 import Footer from './components/Footer'
 import CookieBanner from './components/CookieBanner'
 import ScrollToTop from './components/ScrollToTop'
+import Background from './components/Background'
 
 const Home = lazy(() => import('./pages/Home'))
 const HowItWorks = lazy(() => import('./pages/HowItWorks'))
@@ -18,10 +19,12 @@ const NotFound = lazy(() => import('./pages/NotFound'))
 function App() {
   const location = useLocation()
   return (
-    <div className="min-h-screen flex flex-col bg-bg text-ink">
+    <div className="min-h-screen flex flex-col text-ink relative">
+      <Background />
       <ScrollToTop />
+      <div className="relative z-10 flex flex-col min-h-screen">
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 relative z-10">
         <Suspense fallback={<div className="py-32 text-center text-ink/60">Loading…</div>}>
           <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
@@ -38,6 +41,7 @@ function App() {
         </Suspense>
       </main>
       <Footer />
+      </div>
       <CookieBanner />
     </div>
   )

@@ -8,9 +8,9 @@ export default function Terms() {
     <PageTransition>
       <SEO title="Terms & Conditions" description="DOC Terms & Conditions — services, IP, payment, SLAs, liability, governing law, and dispute resolution." path="/terms" />
 
-      <article className="max-w-3xl mx-auto px-5 lg:px-8 pt-20 pb-16">
-        <h1 className="text-4xl lg:text-5xl font-bold tracking-tight">Terms & Conditions</h1>
-        <p className="mt-4 text-sm text-ink/60">Last updated: June 2026</p>
+      <article className="max-w-3xl mx-auto px-6 pt-20 pb-16">
+        <h1 className="text-[clamp(36px,5vw,56px)] font-bold tracking-[-0.035em] leading-[1.05]"><span className="grad">Terms &</span> <span className="grad-color">Conditions</span></h1>
+        <p className="mt-4 text-sm text-muted">Last updated: June 2026</p>
 
         <LegalSection title="1. Acceptance">
           <p>By engaging DOC (Data Operations Company) for services, registering on the DOC App, or using our website, you agree to be bound by these Terms & Conditions. If you do not agree, do not use our services.</p>
